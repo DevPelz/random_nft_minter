@@ -27,7 +27,7 @@ contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
         0x79d3d8832d904592c0bf9818b621522c988bb8b0c05cdc3b15aea1b6e8db0c15;
     uint32 private constant callbackGasLimit = 2_500_000;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
-    uint32 private constant NUM_WORDS = 1;
+    uint32 private constant NUM_OF_TRAITS = 6;
 
     // NFT variables
     uint256 public constant mintFee = 0.000001 ether;
@@ -36,8 +36,11 @@ contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
     string[] internal nftTokenUris;
     bool private _initialized;
 
+    // mapping to give each person a unique Id
+    mapping(uint256 => address) public _IdToSender;
+
     constructor(
-        string[3333] memory _nftTokenUris
+        string[10] memory _nftTokenUris
     ) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("DigitalVistas", "DV") {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
         _initializeContract(_nftTokenUris);
@@ -50,5 +53,22 @@ contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
         }
         nftTokenUris = _nftTokenUris;
         _initialized = true;
+    }
+
+    function mintNft() external payable returns (uint256 Id) {
+        if (msg.value < mintFee) {
+            revert("Not enought money to mint Nft");
+        }
+        Id = i_vrfCoordinator.requestRandomWords(
+            gasLane,
+            suscriptionId,
+            REQUEST_CONFIRMATIONS,
+            callbackGasLimit,
+            NUM_OF_TRAITS
+        );
+
+        // set the Id of the sender;
+
+        _IdToSender[Id] = msg.sender;
     }
 }
