@@ -1,12 +1,12 @@
-// SPDX-License-Identifier: SEE LICENSE IN LICENSE
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
-contract CHIX is ERC721Enumerable, Ownable, VRFConsumerBaseV2 {
+contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
     enum char {
         name,
         experience,
@@ -18,6 +18,7 @@ contract CHIX is ERC721Enumerable, Ownable, VRFConsumerBaseV2 {
 
     // Goerli/chainlink vars for randommness based on network specifications
     // Chainlink VRF Variables
+
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
     address private constant vrfCoordinatorV2 =
         0x2Ca8E0C643bDe4C2E08ab1fA0da3401AdAD7734D;
@@ -32,12 +33,22 @@ contract CHIX is ERC721Enumerable, Ownable, VRFConsumerBaseV2 {
     uint256 public constant mintFee = 0.000001 ether;
     uint256 private _tokenCounter;
     uint256 internal constant MAX_TRAIT_VAL = 100;
-    string[] internal _nftTokenUris;
+    string[] internal nftTokenUris;
     bool private _initialized;
 
     constructor(
-        string[3333] memory nftTokenUris
+        string[3333] memory _nftTokenUris
     ) VRFConsumerBaseV2(vrfCoordinatorV2) ERC721("DigitalVistas", "DV") {
         i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
+        _initializeContract(_nftTokenUris);
+        _tokenCounter = 0;
+    }
+
+    function _initializeContract(string[10] memory _nftTokenUris) private {
+        if (_initialized == true) {
+            revert("Already Initialized");
+        }
+        nftTokenUris = _nftTokenUris;
+        _initialized = true;
     }
 }
