@@ -89,6 +89,8 @@ contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
+        address nftOwner = _IdToSender[requestId];
+
         uint randomNumber = randomWords[0];
         uint tokenId = characters.length;
 
@@ -103,6 +105,6 @@ contract CHIX is ERC721URIStorage, VRFConsumerBaseV2, Ownable {
             Char(intelligence, experience, strength, durability, speed, combat)
         );
 
-        _safeMint(msg.sender, tokenId);
+        _safeMint(nftOwner, tokenId);
     }
 }
